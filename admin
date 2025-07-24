@@ -1,0 +1,64 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+export default function AdminDashboard() {
+  const [bookings, setBookings] = useState([]);
+
+  const fetchBookings = async () => {
+    const res = await axios.get('http://localhost:5000/api/bookings');
+    setBookings(res.data);
+  };
+
+  const deleteBooking = async (id) => {
+    if (window.confirm("Are you sure to delete this booking?")) {
+      await axios.delete(`http://localhost:5000/api/bookings/${id}`);
+      fetchBookings();
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-6">Admin Dashboard - Bookings</h1>
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border p-2">User</th>
+              <th className="border p-2">Test</th>
+              <th className="border p-2">Date</th>
+              <th className="border p-2">Status</th>
+              <th className="border p-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bookings.map((b) => (
+              <tr key={b._id}>
+                <td className="border p-2">{b.user}</td>
+                <td className="border p-2">{b.test}</td>
+                <td className="border p-2">{new Date(b.date).toLocaleDateString()}</td>
+                <td className="border p-2">{b.status}</td>
+                <td className="border p-2">
+                  <button
+                    onClick={() => deleteBooking(b._id)}
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {bookings.length === 0 && (
+              <tr>
+                <td colSpan="5" className="text-center p-4">No bookings found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
